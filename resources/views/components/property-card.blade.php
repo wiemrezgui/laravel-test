@@ -31,9 +31,15 @@
                 {{ number_format($property->price_per_night, 2) }}€
                 <span class="text-sm font-normal text-gray-500">/ nuit</span>
             </div>
+             @auth
             <a href="{{ route('properties.show', $property) }}" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary transition-colors">
                 Réserver
             </a>
+            @else
+                <button onclick="showLoginModal()" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary transition-colors">
+                    Réserver
+                </button>
+            @endauth
         </div>
     </div>
 </div>

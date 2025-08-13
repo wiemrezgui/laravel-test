@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal('total_price', 10, 2);
             $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED'])->default('CONFIRMED');
             $table->text('special_requests')->nullable();
-            
+            $table->text('cancellation_reason')->nullable();
             $table->timestamps();
             
             // Index pour les recherches par dates
