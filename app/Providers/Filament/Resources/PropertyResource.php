@@ -18,23 +18,40 @@ class PropertyResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+            // Section pour les infos générales
             Forms\Components\Section::make('Informations générales')->schema([
-                Forms\Components\TextInput::make('name')->label('Nom')->required()->maxLength(255),
-                Forms\Components\Textarea::make('description')->label('Description')->required()->rows(4),
-                Forms\Components\TextInput::make('price_per_night')->label('Prix par nuit')->numeric()->prefix('€')->required(),
-                Forms\Components\Select::make('status')->label('Statut')->options([
-                    'ACTIVE' => 'Actif', 'INACTIVE' => 'Inactif', 'MAINTENANCE' => 'Maintenance',
-                ])->required()->default('ACTIVE'),
+                Forms\Components\TextInput::make('name')->required(),
+                Forms\Components\Textarea::make('description')->rows(4),
+                Forms\Components\TextInput::make('price_per_night')
+                    ->numeric()
+                    ->prefix('€'),
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'ACTIVE' => 'Actif', 
+                        'INACTIVE' => 'Inactif', 
+                        'MAINTENANCE' => 'Maintenance',
+                    ])
+                    ->default('ACTIVE'),
             ])->columns(2),
+            
+            // Section pour la localisation
             Forms\Components\Section::make('Localisation')->schema([
-                Forms\Components\TextInput::make('address')->label('Adresse')->required(),
-                Forms\Components\TextInput::make('city')->label('Ville')->required(),
-                Forms\Components\TextInput::make('country')->label('Pays')->required(),
+                Forms\Components\TextInput::make('address'),
+                Forms\Components\TextInput::make('city'),
+                Forms\Components\TextInput::make('country'),
             ])->columns(3),
+            
+            // Section pour les détails
             Forms\Components\Section::make('Détails')->schema([
-                Forms\Components\TextInput::make('max_guests')->label('Max invités')->numeric()->required()->default(2),
-                Forms\Components\TextInput::make('bedrooms')->label('Chambres')->numeric()->required()->default(1),
-                Forms\Components\TextInput::make('bathrooms')->label('SDB')->numeric()->required()->default(1),
+                Forms\Components\TextInput::make('max_guests')
+                    ->numeric()
+                    ->default(2),
+                Forms\Components\TextInput::make('bedrooms')
+                    ->numeric()
+                    ->default(1),
+                Forms\Components\TextInput::make('bathrooms')
+                    ->numeric()
+                    ->default(1),
             ])->columns(3),
         ]);
     }
@@ -42,20 +59,33 @@ class PropertyResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
-            Tables\Columns\TextColumn::make('name')->label('Nom')->searchable()->sortable(),
-            Tables\Columns\TextColumn::make('city')->label('Ville')->searchable(),
-            Tables\Columns\TextColumn::make('price_per_night')->label('Prix/nuit')->money('EUR')->sortable(),
-            Tables\Columns\BadgeColumn::make('status')->label('Statut')->colors([
-                'success' => 'ACTIVE', 'danger' => 'INACTIVE', 'warning' => 'MAINTENANCE',
-            ]),
-            Tables\Columns\TextColumn::make('bookings_count')->label('Réservations')->counts('bookings'),
-        ])->filters([
-            Tables\Filters\SelectFilter::make('status')->options([
-                'ACTIVE' => 'Actif', 'INACTIVE' => 'Inactif', 'MAINTENANCE' => 'Maintenance'
-            ]),
-        ])->actions([
+            Tables\Columns\TextColumn::make('name')
+                ->searchable()
+                ->sortable(),
+            Tables\Columns\TextColumn::make('city')
+                ->searchable(),
+            Tables\Columns\TextColumn::make('price_per_night')
+                ->money('EUR'),
+            Tables\Columns\BadgeColumn::make('status')
+                ->colors([
+                    'success' => 'ACTIVE', 
+                    'danger' => 'INACTIVE', 
+                    'warning' => 'MAINTENANCE',
+                ]),
+            Tables\Columns\TextColumn::make('bookings_count')
+                ->counts('bookings'), // Compte les réservations
+        ])
+        ->filters([
+            Tables\Filters\SelectFilter::make('status')
+                ->options([
+                    'ACTIVE' => 'Actif', 
+                    'INACTIVE' => 'Inactif', 
+                    'MAINTENANCE' => 'Maintenance'
+                ]),
+        ])
+        ->actions([
             Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+            Tables\Actions\DeleteAction::make(), // Action supplémentaire de suppression
         ]);
     }
 

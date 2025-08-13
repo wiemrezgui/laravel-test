@@ -1,53 +1,49 @@
 <?php
-
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    // Utilisation des traits pour les fonctionnalités de base
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
+     * Champs autorisés
      * @var list<string>
      */
     protected $fillable = [
         'name',
         'email',
-        'password',
+        'password', // Stocké de manière sécurisée 
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
+     * Champs cachés lors de la sérialisation
      * @var list<string>
      */
     protected $hidden = [
         'password',
-        'remember_token',
+        'remember_token', // Pour la fonctionnalité "se souvenir de moi"
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
+     * Conversion automatique des types de données
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at' => 'datetime', // Conversion en objet Carbon
+            'password' => 'hashed', // Hashage automatique du mot de passe
         ];
     }
 
+    // Relation avec le modèle Booking
     public function bookings()
     {
-        return $this->hasMany(Booking::class);
+        return $this->hasMany(Booking::class); // Un utilisateur peut avoir plusieurs réservations
     }
 }
