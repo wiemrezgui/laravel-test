@@ -20,7 +20,9 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
-        $this->authorize('view', $booking);
+         if (auth()->id() !== $booking->user_id) {
+        abort(403);
+        }
         return view('bookings.show', compact('booking'));
     }
 }
