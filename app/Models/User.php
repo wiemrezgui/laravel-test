@@ -18,6 +18,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password', // Stocké de manière sécurisée 
+        'role'
     ];
 
     /**
@@ -45,5 +46,17 @@ class User extends Authenticatable
     public function bookings()
     {
         return $this->hasMany(Booking::class); // Un utilisateur peut avoir plusieurs réservations
+    }
+
+    // Vérifier un admin
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    // Vérifier un simple utilisateur
+    public function isUser()
+    {
+        return $this->role === 'user';
     }
 }
