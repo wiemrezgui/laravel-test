@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Livewire;
 
 use App\Models\Property;
@@ -10,104 +9,104 @@ use Carbon\Carbon;
 
 class BookingManager extends Component
 {
-    // Propriétés publiques du composant
-    public Property $property; // La propriété à réserver
-    public $startDate; // Date de début de séjour
-    public $endDate; // Date de fin de séjour
-    public $specialRequests = ''; // Demandes spéciales
-    public $totalPrice = 0; // Prix total calculé
-    public $numberOfNights = 0; // Nombre de nuits calculé
-    public $isAvailable = null; // Disponibilité de la propriété
+    // Component public properties
+    public Property $property; // The property being booked
+    public $startDate; // Check-in date
+    public $endDate; // Check-out date
+    public $specialRequests = ''; // Optional guest requests
+    public $totalPrice = 0; // Calculated total price
+    public $numberOfNights = 0; // Calculated nights count
+    public $isAvailable = null; // Property availability status
 
-    // Règles de validation
+    // Validation rules
     protected $rules = [
-        'startDate' => 'required|date|after:today', // Doit être une date future
-        'endDate' => 'required|date|after:startDate', // Doit être après startDate
-        'specialRequests' => 'nullable|string|max:500' // Optionnel, max 500 caractères
+        'startDate' => 'required|date|after:today', // Must be future date
+        'endDate' => 'required|date|after:startDate', // Must be after start date
+        'specialRequests' => 'nullable|string|max:500' // Optional, max 500 chars
     ];
 
-    // Méthode exécutée lors de l'initialisation du composant
+    // Initialize component with property and default dates
     public function mount(Property $property)
     {
         $this->property = $property;
-        // Définit des dates par défaut (demain et après-demain)
+        // Set default dates (tomorrow and day after)
         $this->startDate = Carbon::now()->addDay()->format('Y-m-d');
         $this->endDate = Carbon::now()->addDays(2)->format('Y-m-d');
-        $this->checkAvailability(); // Vérifie immédiatement la disponibilité
+        $this->checkAvailability(); // Check availability immediately
     }
 
-    // Méthode appelée quand startDate est modifiée
+    // When start date changes
     public function updatedStartDate()
     {
         $this->checkAvailability();
     }
 
-    // Méthode appelée quand endDate est modifiée
+    // When end date changes
     public function updatedEndDate()
     {
         $this->checkAvailability();
     }
 
-    // Vérifie la disponibilité de la propriété pour les dates sélectionnées
+    // Check property availability for selected dates
     public function checkAvailability()
     {
         if ($this->startDate && $this->endDate && $this->startDate < $this->endDate) {
-            // Utilise la méthode du modèle Property pour vérifier la disponibilité
+            // Use property's availability check method
             $this->isAvailable = $this->property->isAvailableForDates($this->startDate, $this->endDate);
-            $this->calculatePrice(); // Recalcule le prix si les dates changent
+            $this->calculatePrice(); // Recalculate price if dates change
         } else {
-            // Réinitialise si les dates ne sont pas valides
+            // Reset if dates are invalid
             $this->isAvailable = null;
             $this->totalPrice = 0;
             $this->numberOfNights = 0;
         }
     }
 
-    // Calcule le prix total et le nombre de nuitées
+    // Calculate total price and nights count
     public function calculatePrice()
     {
         if ($this->startDate && $this->endDate) {
             $start = Carbon::parse($this->startDate);
             $end = Carbon::parse($this->endDate);
-            $this->numberOfNights = $start->diffInDays($end); // Calcul des nuitées
-            $this->totalPrice = $this->numberOfNights * $this->property->price_per_night; // Calcul du prix
+            $this->numberOfNights = $start->diffInDays($end); // Calculate nights
+            $this->totalPrice = $this->numberOfNights * $this->property->price_per_night; // Calculate total
         }
     }
 
-    // Crée une nouvelle réservation
+    // Create new booking
     public function createBooking()
     {
-        // Vérifie que l'utilisateur est connecté
+        // Verify user is authenticated
         if (!Auth::check()) {
-            session()->flash('error', 'Vous devez être connecté pour effectuer une réservation.');
+            session()->flash('error', 'Please login to make a booking.');
             return redirect()->route('login');
         }
 
-        $this->validate(); // Valide les données du formulaire
+        $this->validate(); // Validate form data
 
-        // Vérifie la disponibilité
+        // Verify property availability
         if (!$this->isAvailable) {
-            session()->flash('error', 'Cette propriété n\'est pas disponible pour ces dates.');
+            session()->flash('error', 'Property not available for selected dates.');
             return;
         }
 
-        // Ajout de la réservation
+        // Create booking record
         $booking = Booking::create([
-            'user_id' => Auth::id(), // ID de l'utilisateur connecté
+            'user_id' => Auth::id(), // Current user ID
             'property_id' => $this->property->id,
             'start_date' => $this->startDate,
             'end_date' => $this->endDate,
             'total_price' => $this->totalPrice,
-            'status' => 'CONFIRMED', // Statut par défaut
+            'status' => 'CONFIRMED', // Default status
             'special_requests' => $this->specialRequests
         ]);
 
-        // Message de succès et redirection
-        session()->flash('success', 'Réservation effectuée avec succès !');
+        // Success message and redirect
+        session()->flash('success', 'Booking created successfully!');
         return redirect()->route('bookings.show', $booking);
     }
 
-    // Méthode de rendu du composant
+    // Render component view
     public function render()
     {
         return view('livewire.booking-manager');

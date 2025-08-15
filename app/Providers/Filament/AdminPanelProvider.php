@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Providers\Filament;
 
 use Filament\Http\Middleware\Authenticate;
@@ -21,25 +20,30 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
+    // Configure the Filament admin panel
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->id('admin')
-            ->default()
-            ->path('admin')
+            ->id('admin') // Panel ID
+            ->default() // Set as default panel
+            ->path('admin') // Admin URL path
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Amber, // Color scheme
             ])
+            // Auto-discover resources
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
+            // Auto-discover pages
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
-                Dashboard::class,
+                Dashboard::class, // Default dashboard page
             ])
+            // Auto-discover widgets
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                AccountWidget::class, // User account widget
+                FilamentInfoWidget::class, // System info widget
             ])
+            // Middleware stack
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -51,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            // Authentication middleware
             ->authMiddleware([
                 Authenticate::class,
             ]);

@@ -9,9 +9,11 @@ use App\Models\Property;
 
 class AdminBookingController extends Controller
 {
+    // Display paginated list of bookings with optional status filter
     public function index()
     {
         $bookings = Booking::with(['user', 'property'])
+            // Filter by status if provided in request
             ->when(request()->filled('status'), function($query) {
                 return $query->where('status', request('status'));
             })
@@ -19,26 +21,27 @@ class AdminBookingController extends Controller
 
         return view('admin.bookings.index', [
             'bookings' => $bookings,
-            'users' => User::all(),
-            'properties' => Property::all(),
+            'users' => User::all(), // All users for admin assignment
+            'properties' => Property::all(), // All properties for selection
             'routes' => [
                 'destroy' => route('admin.bookings.destroy', ['booking' => ':id'])
             ]
         ]);
     }
 
+    // Create new booking from admin panel
     public function store(Request $request)
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'property_id' => 'required|exists:properties,id',
-            'start_date' => 'required|date|after:today',
-            'end_date' => 'required|date|after:start_date',
+            'start_date' => 'required|date|after:today', // Must be future date
+            'end_date' => 'required|date|after:start_date', // Must be after start
             'status' => 'required|in:PENDING,CONFIRMED,CANCELLED',
             'special_requests' => 'nullable|string|max:500'
         ]);
 
-        // Calculate total price
+        // Calculate pricing based on property and dates
         $property = Property::find($validated['property_id']);
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = Carbon::parse($validated['end_date']);
@@ -57,6 +60,7 @@ class AdminBookingController extends Controller
         ]);
     }
 
+    // Update existing booking
     public function update(Request $request, Booking $booking)
     {
         $validated = $request->validate([
@@ -68,7 +72,7 @@ class AdminBookingController extends Controller
             'special_requests' => 'nullable|string|max:500'
         ]);
 
-        // Recalculate total price if dates or property changed
+        // Recalculate price if key details changed
         if ($validated['property_id'] !== $booking->property_id || 
             $validated['start_date'] !== $booking->start_date->format('Y-m-d') || 
             $validated['end_date'] !== $booking->end_date->format('Y-m-d')) {
@@ -91,6 +95,7 @@ class AdminBookingController extends Controller
         ]);
     }
 
+    // Delete booking
     public function destroy(Booking $booking)
     {
         $booking->delete();

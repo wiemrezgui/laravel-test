@@ -7,48 +7,48 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
-    use HasFactory; // Utilise le système de factories pour les tests
+    use HasFactory; // Enables factory support for testing
 
-    // Champs autorisés
+    // Fields that are mass assignable
     protected $fillable = [
         'name', 'description', 'price_per_night', 'address', 'city', 'country',
         'max_guests', 'bedrooms', 'bathrooms', 'status'
     ];
 
-    // Conversion automatique des types de données
+    // Attribute casting
     protected $casts = [
-        'price_per_night' => 'decimal:2', // Format décimal avec 2 chiffres après la virgule
+        'price_per_night' => 'decimal:2', // Stores as decimal with 2 places
     ];
 
-    // Relation avec le modèle Booking
+    // Relationship with Booking model
     public function bookings(): HasMany
     {
-        return $this->hasMany(Booking::class); // Une propriété peut avoir plusieurs réservations
+        return $this->hasMany(Booking::class); // A property can have many bookings
     }
 
-    // Vérifie si la propriété est disponible pour une période donnée
+    // Check property availability for given date range
     public function isAvailableForDates($startDate, $endDate): bool
     {
         return !$this->bookings()
-            ->where('status', '!=', 'CANCELLED') // Exclut les réservations annulées
+            ->where('status', '!=', 'CANCELLED') // Ignore cancelled bookings
             ->where(function ($query) use ($startDate, $endDate) {
-                // Vérifie les chevauchements de dates
+                // Check for date overlaps
                 $query->where(function ($q) use ($startDate, $endDate) {
-                    // Réservation commence avant et se termine après la date de début demandée
-                    $q->where('start_date', '<=', $startDate)->where('end_date', '>', $startDate);
+                    $q->where('start_date', '<=', $startDate)
+                      ->where('end_date', '>', $startDate);
                 })->orWhere(function ($q) use ($startDate, $endDate) {
-                    // Réservation commence avant la date de fin demandée et se termine après
-                    $q->where('start_date', '<', $endDate)->where('end_date', '>=', $endDate);
+                    $q->where('start_date', '<', $endDate)
+                      ->where('end_date', '>=', $endDate);
                 })->orWhere(function ($q) use ($startDate, $endDate) {
-                    // Réservation est complètement incluse dans la période demandée
-                    $q->where('start_date', '>=', $startDate)->where('end_date', '<=', $endDate);
+                    $q->where('start_date', '>=', $startDate)
+                      ->where('end_date', '<=', $endDate);
                 });
-            })->exists(); // Retourne true si aucune réservation conflictuelle n'existe
+            })->exists(); // Returns true if no conflicting bookings exist
     }
 
-    //filtrer les propriétés actives
+    // Scope to filter active properties
     public function scopeActive($query)
     {
-        return $query->where('status', 'ACTIVE'); // Permet Property::active()->get()
+        return $query->where('status', 'ACTIVE'); // Usage: Property::active()->get()
     }
 }

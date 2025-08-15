@@ -7,55 +7,54 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    // Utilisation des traits pour les fonctionnalités de base
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable; // Provides factory and notification features
 
     /**
-     * Champs autorisés
-     * @var list<string>
+     * The attributes that are mass assignable
+     * @var array<string>
      */
     protected $fillable = [
         'name',
         'email',
-        'password', // Stocké de manière sécurisée 
+        'password', // Automatically hashed
         'role'
     ];
 
     /**
-     * Champs cachés lors de la sérialisation
-     * @var list<string>
+     * The attributes that should be hidden for serialization
+     * @var array<string>
      */
     protected $hidden = [
         'password',
-        'remember_token', // Pour la fonctionnalité "se souvenir de moi"
+        'remember_token', // Used for "remember me" functionality
     ];
 
     /**
-     * Conversion automatique des types de données
+     * The attributes that should be cast
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime', // Conversion en objet Carbon
-            'password' => 'hashed', // Hashage automatique du mot de passe
+            'email_verified_at' => 'datetime', // Converts to Carbon instance
+            'password' => 'hashed', // Ensures automatic password hashing
         ];
     }
 
-    // Relation avec le modèle Booking
+    // Relationship with Booking model
     public function bookings()
     {
-        return $this->hasMany(Booking::class); // Un utilisateur peut avoir plusieurs réservations
+        return $this->hasMany(Booking::class); // A user can have many bookings
     }
 
-    // Vérifier un admin
-    public function isAdmin()
+    // Check if user is admin
+    public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
-    // Vérifier un simple utilisateur
-    public function isUser()
+    // Check if user is regular user
+    public function isUser(): bool
     {
         return $this->role === 'user';
     }

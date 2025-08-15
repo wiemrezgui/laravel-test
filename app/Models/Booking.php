@@ -8,40 +8,40 @@ use Carbon\Carbon;
 
 class Booking extends Model
 {
-    use HasFactory; // Utilise le système de factories pour les tests
+    use HasFactory; // Enables factory support for testing
 
-    // Champs autorisés
+    // Fields that are mass assignable
     protected $fillable = [
         'user_id', 'property_id', 'start_date', 'end_date',
-        'total_price', 'status', 'special_requests','cancellation_reason'
+        'total_price', 'status', 'special_requests', 'cancellation_reason'
     ];
 
-    // Conversion automatique des types de données
+    // Attribute casting
     protected $casts = [
-        'start_date' => 'date', // Convertit en objet Carbon
-        'end_date' => 'date',   // Convertit en objet Carbon
-        'total_price' => 'decimal:2', // Format décimal avec 2 chiffres après la virgule
+        'start_date' => 'date', // Converts to Carbon instance
+        'end_date' => 'date',   // Converts to Carbon instance
+        'total_price' => 'decimal:2', // Stores as decimal with 2 places
     ];
 
-    // Relation avec le modèle User
+    // Relationship with User model
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class); // Une réservation appartient à un utilisateur
+        return $this->belongsTo(User::class); // Each booking belongs to one user
     }
 
-    // Relation avec le modèle Property
+    // Relationship with Property model
     public function property(): BelongsTo
     {
-        return $this->belongsTo(Property::class); // Une réservation appartient à une propriété
+        return $this->belongsTo(Property::class); // Each booking belongs to one property
     }
 
-    // Méthode pour calculer le nombre de nuitées
+    // Accessor for number of nights (computed attribute)
     public function getNumberOfNightsAttribute(): int
     {
-        return Carbon::parse($this->start_date)->diffInDays(Carbon::parse($this->end_date));
+        return Carbon::parse($this->start_date)->diffInDays($this->end_date);
     }
 
-    // Méthode pour calculer le prix total
+    // Calculate total price based on property rate and duration
     public function calculateTotalPrice(): float
     {
         return $this->property ? $this->number_of_nights * $this->property->price_per_night : 0;

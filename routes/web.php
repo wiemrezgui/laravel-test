@@ -12,6 +12,7 @@ Route::get('/', [PropertyController::class, 'index'])->name('/');
 Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
 Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 
+// Simple user routes 
 Route::middleware('auth')->group(function () {
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
@@ -20,17 +21,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])
          ->name('bookings.cancel');
 });
-// Routes admin
+// Admin routes 
 Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // Gestion des propriétés
+    // Properties management
     Route::get('/properties', [AdminPropertyController::class, 'index'])->name('properties.index');
     Route::post('/properties', [AdminPropertyController::class, 'store'])->name('properties.store');
     Route::put('/properties/{property}', [AdminPropertyController::class, 'update'])->name('properties.update');
     Route::delete('/properties/{property}', [AdminPropertyController::class, 'destroy'])->name('properties.destroy');
     
-    // Gestion des réservations
+    // Bookings management
     Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
     Route::delete('/bookings/{booking}', [AdminBookingController::class, 'destroy'])->name('bookings.destroy');
 });

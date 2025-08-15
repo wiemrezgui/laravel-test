@@ -7,10 +7,11 @@ use Illuminate\Http\Request;
 
 class AdminPropertyController extends Controller
 {
+    // List all properties with booking counts
     public function index()
     {
         $properties = Property::with('bookings')
-            ->withCount('bookings')
+            ->withCount('bookings') // Eager load booking count
             ->paginate(15);
 
         return view('admin.properties.index', [
@@ -23,6 +24,7 @@ class AdminPropertyController extends Controller
         ]);
     }
 
+    // Create new property
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -43,6 +45,7 @@ class AdminPropertyController extends Controller
         return response()->json(['success' => true, 'message' => 'Propriété crée avec succès']);
     }
 
+    // Update property details
     public function update(Request $request, Property $property)
     {
         $validated = $request->validate([
@@ -63,6 +66,7 @@ class AdminPropertyController extends Controller
         return response()->json(['success' => true, 'message' => 'Propriété mise à jour avec succès']);
     }
 
+    // Delete property
     public function destroy(Property $property)
     {
         $property->delete();
