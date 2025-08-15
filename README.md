@@ -19,8 +19,7 @@ A complete property booking management system built with:
 - Property browsing with filters
 - Booking management
 - User authentication
-- Responsive design
-
+- 
 ### Admin Panel
 - Property CRUD operations
 - Booking management
