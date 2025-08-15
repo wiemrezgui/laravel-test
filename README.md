@@ -19,19 +19,18 @@ A complete property booking management system built with:
 - Property browsing with filters
 - Booking management
 - User authentication
-- 
+  
 ### Admin Panel
 - Property CRUD operations
 - Booking management
 - Dashboard with analytics
-- User management
 
 ## Technical Stack
 
 ### Backend
 - PHP 8.2.12
 - Laravel 10
-- MySQL 8.0+
+- MySQL
 - Eloquent ORM
 
 ### Frontend
